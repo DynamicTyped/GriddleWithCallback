@@ -162,6 +162,13 @@ var GriddleWithCallback = React.createClass({
       server-side (aka we would generally post the filter as well as other information used to populate
       the grid) and send back to the view (which would handle passing the data back to Griddle)
     */
+	
+		// Check if filter actually changed; this callback is fired also on filter field focus and so without this condition page is changing to first
+		if (this.state.filter === filter || 
+		    ((_.isUndefined(this.state.filter) || _.isNull(this.state.filter) || _.isEmpty(this.state.filter)) && (_.isUndefined(filter) || _.isNull(filter) || _.isEmpty(filter)))) {
+			return;
+		}
+		
 		var that = this;
 
 		var state = {

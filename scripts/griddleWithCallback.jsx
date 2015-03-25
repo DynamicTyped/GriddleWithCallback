@@ -54,7 +54,7 @@ var GriddleWithCallback = React.createClass({
 		var that = this;
 		var state = {
 			page: index,
-			pageSize: setDefault(pageSize, this.state.pageSize)
+			pageSize: typeof pageSize === 'undefined' ? this.state.pageSize : pageSize
 		};
 
 		this.updateStateWithExternalResults(state, function(updatedState) {

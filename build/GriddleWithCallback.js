@@ -110,7 +110,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			var that = this;
 			var state = {
 				page: index,
-				pageSize: setDefault(pageSize, this.state.pageSize)
+				pageSize: typeof pageSize === 'undefined' ? this.state.pageSize : pageSize
 			};
 
 			this.updateStateWithExternalResults(state, function(updatedState) {
@@ -167,8 +167,6 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.setState({ isLoading: true });
 			// Grab the results.
 			this.getExternalResults(state, function(externalResults) {
-
-			debugger;
 				// Fill the state result properties
 				if (that.props.enableInfiniteScroll &&
 						that.state.results &&
@@ -220,6 +218,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	      server-side (aka we would generally post the filter as well as other information used to populate
 	      the grid) and send back to the view (which would handle passing the data back to Griddle)
 	    */
+		
+			// Check if filter actually changed; this callback is fired also on filter field focus and so without this condition page is changing to first
+			if (this.state.filter === filter || 
+			    ((_.isUndefined(this.state.filter) || _.isNull(this.state.filter) || _.isEmpty(this.state.filter)) && (_.isUndefined(filter) || _.isNull(filter) || _.isEmpty(filter)))) {
+				return;
+			}
+			
 			var that = this;
 
 			var state = {
@@ -598,8 +603,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var that = this;
 	        //get the correct page size
 	        if (this.state.sortColumn !== "" || this.props.initialSort !== "") {
+	            var sortProperty = _.where(this.props.columnMetadata, { columnName: this.state.sortColumn });
+	            sortProperty = sortProperty.length > 0 && sortProperty[0].hasOwnProperty("sortProperty") && sortProperty[0].sortProperty || null;
+
 	            data = _.sortBy(data, function (item) {
-	                return item[that.state.sortColumn || that.props.initialSort];
+	                return sortProperty ? item[that.state.sortColumn || that.props.initialSort][sortProperty] : item[that.state.sortColumn || that.props.initialSort];
 	            });
 
 	            if (this.state.sortAscending === false) {
@@ -1031,7 +1039,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var displayEnd = Math.min(displayStart + visibleRecordCount * 1.25, this.props.data.length - 1);
 
 	        // Split the amount of nodes.
-	        nodeData = nodeData.slice(displayStart, displayEnd);
+	        nodeData = nodeData.slice(displayStart, displayEnd + 1);
 
 	        // Set the above and below nodes.
 	        var aboveSpacerRowStyle = { height: displayStart * adjustedHeight + "px" };
@@ -1439,7 +1447,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	                return React.createElement(
 	                    "div",
-	                    { className: "griddle-column-selection checkbox", style: that.props.useGriddleStyles ? { float: "left", width: "20%" } : null },
+	                    { className: "griddle-column-selection checkbox", key: col, style: that.props.useGriddleStyles ? { float: "left", width: "20%" } : null },
 	                    React.createElement(
 	                        "label",
 	                        null,
@@ -1795,8 +1803,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	      configurable: true
 	    },
 	    getBodyRowMetadataClass: {
-	      value: function getBodyRowMetadataClass() {
-	        return this.hasRowMetadata() && this.rowMetadata.bodyCssClassName !== null && this.rowMetadata.bodyCssClassName !== undefined ? this.rowMetadata.bodyCssClassName : null;
+	      value: function getBodyRowMetadataClass(rowData) {
+	        if (this.hasRowMetadata() && this.rowMetadata.bodyCssClassName !== null && this.rowMetadata.bodyCssClassName !== undefined) {
+	          if (typeof this.rowMetadata.bodyCssClassName === "function") {
+	            return this.rowMetadata.bodyCssClassName(rowData);
+	          } else {
+	            return this.rowMetadata.bodyCssClassName;
+	          }
+	        }
+	        return null;
 	      },
 	      writable: true,
 	      configurable: true
@@ -2117,7 +2132,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        }
 
 	                        if (_this.props.columnSettings.hasColumnMetadata() && typeof meta !== "undefined") {
-	                                var colData = typeof meta.customComponent === "undefined" || meta.customComponent === null ? col[1] : React.createElement(meta.customComponent, { data: col[1], rowData: dataView, metadata: meta });
+	                                var colData = typeof meta.customComponent === "undefined" || meta.customComponent === null ? col[1] : React.createElement(meta.customComponent, { data: col[1], rowData: dataView, metadata: meta, customData: meta.customComponentData });
 	                                returnValue = meta == null ? returnValue : React.createElement(
 	                                        "td",
 	                                        { onClick: _this.props.hasChildren && _this.handleClick, className: meta.cssClassName, key: index, style: columnStyles },
@@ -2134,7 +2149,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                });
 
 	                //Get the row from the row settings.
-	                var className = that.props.rowSettings && that.props.rowSettings.getBodyRowMetadataClass() || "standard-row";
+	                var className = that.props.rowSettings && that.props.rowSettings.getBodyRowMetadataClass(that.props.data) || "standard-row";
 
 	                if (that.props.isChildRow) {
 	                        className = "child-row";

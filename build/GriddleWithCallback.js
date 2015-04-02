@@ -873,6 +873,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // Grab the column keys from the first results
 	        keys = _.keys(_.omit(results[0], meta));
 
+	        // sort keys by order
+	        keys = this.columnSettings.orderColumns(keys);
+
 	        // Grab the current and max page values.
 	        var currentPage = this.getCurrentPage();
 	        var maxPage = this.getCurrentMaxPage();
@@ -1726,16 +1729,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	      writable: true,
 	      configurable: true
 	    },
-	    getColumns: {
-	      value: function getColumns() {
+	    orderColumns: {
+	      value: function orderColumns(cols) {
 	        var _this = this;
 	        var ORDER_MAX = 100;
-	        //if we didn't set default or filter
-	        var filteredColumns = this.filteredColumns.length === 0 ? this.allColumns : this.filteredColumns;
 
-	        filteredColumns = _.difference(filteredColumns, this.metadataColumns);
-
-	        filteredColumns = _.sortBy(filteredColumns, function (item) {
+	        var orderedColumns = _.sortBy(cols, function (item) {
 	          var metaItem = _.findWhere(_this.columnMetadata, { columnName: item });
 
 	          if (typeof metaItem === "undefined" || metaItem === null || isNaN(metaItem.order)) {
@@ -1744,6 +1743,20 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	          return metaItem.order;
 	        });
+
+	        return orderedColumns;
+	      },
+	      writable: true,
+	      configurable: true
+	    },
+	    getColumns: {
+	      value: function getColumns() {
+	        //if we didn't set default or filter
+	        var filteredColumns = this.filteredColumns.length === 0 ? this.allColumns : this.filteredColumns;
+
+	        filteredColumns = _.difference(filteredColumns, this.metadataColumns);
+
+	        filteredColumns = this.orderColumns(filteredColumns);
 
 	        return filteredColumns;
 	      },
@@ -2132,7 +2145,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        }
 
 	                        if (_this.props.columnSettings.hasColumnMetadata() && typeof meta !== "undefined") {
-	                                var colData = typeof meta.customComponent === "undefined" || meta.customComponent === null ? col[1] : React.createElement(meta.customComponent, { data: col[1], rowData: dataView, metadata: meta, customData: meta.customComponentData });
+	                                var colData = typeof meta.customComponent === "undefined" || meta.customComponent === null ? col[1] : React.createElement(meta.customComponent, { data: col[1], rowData: dataView, metadata: meta });
 	                                returnValue = meta == null ? returnValue : React.createElement(
 	                                        "td",
 	                                        { onClick: _this.props.hasChildren && _this.handleClick, className: meta.cssClassName, key: index, style: columnStyles },

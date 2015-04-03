@@ -12,6 +12,10 @@
     "react-grid",
     "react-component"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/4lolo/GriddleWithCallback"
+  }, 
   "author": "Ryan Lanciaux",
   "license": "MIT",
   "dependencies": {

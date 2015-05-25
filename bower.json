@@ -1,0 +1,24 @@
+{
+  "name": "GriddleWithCallback",
+  "version": "0.2.0",
+  "homepage": "https://github.com/4lolo/GriddleWithCallback",
+  "authors": [
+  ],
+  "description": "GriddleWithCallback - wrapper for Griddle with callback based external data support",
+  "main": "build/GriddleWithCallback.js",
+  "moduleType": [
+    "es6"
+  ],
+  "keywords": [
+    "griddle"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

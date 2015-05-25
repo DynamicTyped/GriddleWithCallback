@@ -2,7 +2,7 @@ var React = require('react');
 var _ = require('underscore');
 var Griddle = require('griddle-react');
 
-var GriddleWithCallback = React.createClass({
+var GriddleWithCallback = React.createClass({displayName: "GriddleWithCallback",
 	getDefaultProps: function(){
 		return {
 			getExternalResults: null,
@@ -191,12 +191,12 @@ var GriddleWithCallback = React.createClass({
 		this.setPage(0, size);
   },
   render: function(){
-		return <Griddle {...this.props} useExternal={true} externalSetPage={this.setPage}
-			externalChangeSort={this.changeSort} externalSetFilter={this.setFilter}
-			externalSetPageSize={this.setPageSize} externalMaxPage={this.state.maxPage}
-			externalCurrentPage={this.state.page} results={this.state.results} tableClassName="table" resultsPerPage={this.state.pageSize}
-			externalSortColumn={this.state.sortColumn} externalSortAscending={this.state.sortAscending}
-			externalLoadingComponent={this.props.loadingComponent} externalIsLoading={this.state.isLoading} />
+		return React.createElement(Griddle, React.__spread({},  this.props, {useExternal: true, externalSetPage: this.setPage, 
+			externalChangeSort: this.changeSort, externalSetFilter: this.setFilter, 
+			externalSetPageSize: this.setPageSize, externalMaxPage: this.state.maxPage, 
+			externalCurrentPage: this.state.page, results: this.state.results, tableClassName: "table", resultsPerPage: this.state.pageSize, 
+			externalSortColumn: this.state.sortColumn, externalSortAscending: this.state.sortAscending, 
+			externalLoadingComponent: this.props.loadingComponent, externalIsLoading: this.state.isLoading}))
   }
 });
 
